@@ -28,4 +28,7 @@ services:
     volumes:
       - static_volume:/staticfiles/
     ports:
-      - 8000:80
+      - "127.0.0.1:8000:80"  # <-- Исправленный порт для внешнего Nginx
+    depends_on:
+      - backend               # <-- Критически важно для предотвращения 502
+    restart: always           # <-- Страховка от случайных падений
