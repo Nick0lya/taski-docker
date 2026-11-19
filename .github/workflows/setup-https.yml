@@ -1,0 +1,72 @@
+name: Setup HTTPS (one-time)
+
+on:
+  workflow_dispatch:  # Запускается только вручную из вкладки Actions
+    inputs:
+      domain:
+        description: 'Domain name for SSL'
+        required: true
+        default: 'taski-nick.duckdns.org'
+      email:
+        description: 'Email for Let'\''s Encrypt notifications'
+        required: true
+
+jobs:
+  setup-https:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Certbot and get certificate via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Устанавливаем Certbot (если еще не установлен)
+            sudo snap install core
+            sudo snap refresh core
+            sudo snap install --classic certbot
+            sudo ln -sf /snap/bin/certbot /usr/bin/certbot
+            
+            # Получаем сертификат в неинтерактивном режиме
+            # --nginx автоматически обновит конфиг Nginx
+            # --redirect настроит редирект с HTTP на HTTPS
+            sudo certbot --nginx \
+              -d ${{ github.event.inputs.domain }} \
+              --non-interactive \
+              --agree-tos \
+              --email ${{ github.event.inputs.email }} \
+              --redirect
+            
+            # Проверяем, что всё работает
+            sudo nginx -t
+            sudo systemctl reload nginx
+            
+            # Копируем обновленный конфиг во временную папку для возврата в репо
+            sudo cp /etc/nginx/sites-available/taski /tmp/taski-ssl.conf
+            sudo chown $USER:$USER /tmp/taski-ssl.conf
+
+      - name: Download updated nginx config from server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "/tmp/taski-ssl.conf"
+          target: "/tmp"
+          strip_components: 1
+
+      - name: Commit updated nginx config to repo
+        run: |
+          mkdir -p nginx
+          mv /tmp/taski-ssl.conf nginx/taski.conf
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nginx/taski.conf
+          git commit -m "chore: update nginx config with SSL certificate [automated]" || echo "No changes to commit"
+          git push

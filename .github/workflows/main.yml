@@ -176,6 +176,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      
       # Копируем docker-compose.production.yml на продакшен-сервер
       - name: Copy docker-compose.yml via ssh
         uses: appleboy/scp-action@master
@@ -206,11 +207,13 @@ jobs:
           # которые нужно выполнить на сервере, 
           # с которым установлено соединение
           script: |
+            set -e
             # 1. Применяем конфиг Nginx
-            sudo mv /tmp/gateway/nginx.conf /etc/nginx/sites-available/taski
+            sudo mv /tmp/nginx/taski.conf /etc/nginx/sites-available/taski
             sudo ln -sf /etc/nginx/sites-available/taski /etc/nginx/sites-enabled/
             sudo rm -f /etc/nginx/sites-enabled/default
-            sudo nginx -t && sudo systemctl reload nginx
+            sudo nginx -t
+            sudo systemctl reload nginx
 
             # 2. Обновляем Docker контейнеры
             cd taski
