@@ -9,7 +9,8 @@ SECRET_KEY = 'django-insecure-j_89af+30&&4qm*8z9_(^zz8p4-ho8z_m6ylm0s$h!-p@on1_^
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['localhost', '193.227.241.238', 'taski-nick.duckdns.org']
+ALLOWED_HOSTS = ['taski-nick.duckdns.org', '193.227.241.238', 'localhost', '127.0.0.1']
+USE_X_FORWARDED_HOST = True
 
 # Application definition
 
