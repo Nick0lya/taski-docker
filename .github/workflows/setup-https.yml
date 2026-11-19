@@ -8,8 +8,11 @@ on:
         required: true
         default: 'taski-nick.duckdns.org'
       email:
-        description: 'Email for Let'\''s Encrypt notifications'
+        description: 'Email for Lets Encrypt notifications'
         required: true
+
+permissions:
+  contents: write    # <-- Обязательно для git push от github-actions[bot]
 
 jobs:
   setup-https:
