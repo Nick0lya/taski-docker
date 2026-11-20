@@ -105,9 +105,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+
+LANGUAGE_CODE = 'ru'
+
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -145,3 +149,8 @@ CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = False  # Редирект делает Nginx, не Django
 SECURE_HSTS_SECONDS = 31536000  # 1 год
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://taski-nick.duckdns.org',
+    'http://193.227.241.238',
+]
