@@ -1,3 +1,8 @@
+# user files
+set_taski.py
+settings_v*.py
+setup-https.yml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
